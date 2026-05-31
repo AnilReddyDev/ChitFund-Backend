@@ -37,9 +37,10 @@ public class AuctionService {
                 .orElseThrow(() -> new RuntimeException("Group not found"));
 
         // 💰 calculations
-        double totalCollection = group.getMonthlyPremium() * group.getTotalMembers();
-        double payout = bidAmount;
-        double profit = totalCollection - payout;
+        double bid = bidAmount == null ? 0.0 : bidAmount;
+        double totalAmount = group.getTotalAmount() == null ? 0.0 : group.getTotalAmount();
+        double payout = Math.max(0.0, totalAmount - bid);
+        double profit = bid;
 
         Auction auction = new Auction(
                 null,
@@ -52,7 +53,7 @@ public class AuctionService {
         );
 
         // 👉 move to next month
-        group.setCurrentMonth(group.getCurrentMonth() + 1);
+        group.setCurrentMonth((group.getCurrentMonth() == null ? 1 : group.getCurrentMonth()) + 1);
         groupRepo.save(group);
 
         return auctionRepo.save(auction);
