@@ -25,13 +25,13 @@ public class LedgerController {
     }
 
     @GetMapping("/full")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).VIEW_REPORTS)")
     public LedgerFullResponse getLedger(@RequestParam @Positive Long groupId) {
         return service.getFullLedger(groupId);
     }
 
     @GetMapping("/export/csv")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).EXPORT_REPORTS)")
     public ResponseEntity<String> exportCSV(@RequestParam @Positive Long groupId) {
 
         String csv = exportService.exportCSV(groupId);

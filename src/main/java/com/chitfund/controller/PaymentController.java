@@ -24,13 +24,13 @@ public class PaymentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).RECORD_PAYMENTS)")
     public Payment collect(@Valid @RequestBody Payment payment) {
         return service.collectPayment(payment);
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).VIEW_PAYMENTS)")
     public List<Payment> ledger(
             @RequestParam @Positive Long groupId,
             @RequestParam @NotNull LocalDate month

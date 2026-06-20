@@ -23,19 +23,19 @@ public class GroupMemberController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).MANAGE_MEMBERS)")
     public GroupMember add(@Valid @RequestBody GroupMember gm) {
         return service.addMemberToGroup(gm);
     }
 
     @GetMapping("/{groupId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).VIEW_MEMBERS)")
     public List<GroupMember> get(@PathVariable @Positive Long groupId) {
         return service.getMembers(groupId);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).MANAGE_MEMBERS)")
     public void delete(@PathVariable @Positive Long id) {
         service.softDelete(id);
     }

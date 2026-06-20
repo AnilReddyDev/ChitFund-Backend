@@ -32,9 +32,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             String token = header.substring(7);
             authService.findValidSession(token).ifPresent(session -> {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        session.getUsername(),
+                        new AuthenticatedUser(session.getUserId(), session.getUsername(), session.getRole()),
                         null,
-                        List.of(new SimpleGrantedAuthority("ROLE_" + session.getRole()))
+                        List.of(new SimpleGrantedAuthority("ROLE_" + session.getRole().name()))
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             });

@@ -27,26 +27,26 @@ public class DashboardController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).VIEW_DASHBOARD)")
     public DashboardResponse get(@RequestParam @Positive Long groupId) {
         return service.getDashboard(groupId);
     }
 
     @GetMapping("/summary")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).VIEW_DASHBOARD)")
     public DashboardSummaryResponse summary(@RequestParam @Positive Long groupId,
                                             @RequestParam(required = false) @Positive Integer month) {
         return service.getSummary(groupId, month);
     }
 
     @GetMapping("/chart")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).VIEW_DASHBOARD)")
     public List<ChartDataDTO> chart(@RequestParam @Positive Long groupId) {
         return service.getChartData(groupId);
     }
 
     @GetMapping("/trends")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).VIEW_DASHBOARD)")
     public DashboardTrendsResponse trends(@RequestParam @Positive Long groupId) {
         return service.getTrends(groupId);
     }

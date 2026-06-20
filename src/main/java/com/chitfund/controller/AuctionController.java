@@ -21,7 +21,7 @@ public class AuctionController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).MANAGE_AUCTIONS)")
     public Auction create(
             @RequestParam @Positive Long groupId,
             @RequestParam @Positive Integer month,
@@ -32,7 +32,7 @@ public class AuctionController {
     }
 
     @GetMapping("/{groupId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).VIEW_AUCTIONS)")
     public List<Auction> getHistory(@PathVariable @Positive Long groupId) {
         return service.getHistory(groupId);
     }

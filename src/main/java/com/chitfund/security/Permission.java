@@ -1,0 +1,17 @@
+package com.chitfund.security;
+
+public enum Permission {
+    VIEW_DASHBOARD,
+    MANAGE_GROUPS,
+    VIEW_GROUPS,
+    MANAGE_MEMBERS,
+    VIEW_MEMBERS,
+    RECORD_PAYMENTS,
+    VIEW_PAYMENTS,
+    MANAGE_AUCTIONS,
+    VIEW_AUCTIONS,
+    VIEW_REPORTS,
+    EXPORT_REPORTS,
+    VIEW_AUDIT_LOGS,
+    MANAGE_USERS
+}

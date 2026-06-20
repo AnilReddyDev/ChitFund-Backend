@@ -1,5 +1,7 @@
 package com.chitfund.service;
 
+import com.chitfund.audit.Auditable;
+import com.chitfund.entity.AuditAction;
 import com.chitfund.entity.*;
 import com.chitfund.repository.*;
 import org.springframework.stereotype.Service;
@@ -12,17 +14,16 @@ public class AuctionService {
     private final AuctionRepository auctionRepo;
     private final PaymentRepository paymentRepo;
     private final GroupRepository groupRepo;
-    private final AuditService auditService;
 
     public AuctionService(AuctionRepository auctionRepo,
                           PaymentRepository paymentRepo,
-                          GroupRepository groupRepo,
-                          AuditService auditService) {
+                          GroupRepository groupRepo) {
         this.auctionRepo = auctionRepo;
         this.paymentRepo = paymentRepo;
         this.groupRepo = groupRepo;
-        this.auditService = auditService;
     }
+
+    @Auditable(action = AuditAction.CREATE, entityType = "Auction", entityClass = Auction.class)
     public Auction createAuction(Long groupId, Integer month, Long winnerId, Double bidAmount) {
         if (groupId == null || groupId <= 0 || month == null || month <= 0 || winnerId == null || winnerId <= 0) {
             throw new IllegalArgumentException("Group, month, and winner are required");
@@ -65,14 +66,7 @@ public class AuctionService {
         group.setCurrentMonth((group.getCurrentMonth() == null ? 1 : group.getCurrentMonth()) + 1);
         groupRepo.save(group);
 
-        Auction saved = auctionRepo.save(auction);
-        auditService.record(
-                "AUCTION_CREATED",
-                "Auction",
-                saved.getId(),
-                "groupId=" + groupId + ", month=" + month + ", winnerId=" + winnerId + ", bidAmount=" + bidAmount
-        );
-        return saved;
+        return auctionRepo.save(auction);
     }
     public List<Auction> getHistory(Long groupId) {
         return auctionRepo.findByGroupIdOrderByMonthAsc(groupId);

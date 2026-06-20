@@ -1,5 +1,7 @@
 package com.chitfund.service;
 
+import com.chitfund.audit.Auditable;
+import com.chitfund.entity.AuditAction;
 import com.chitfund.entity.ChittGroup;
 import com.chitfund.entity.PayoutSchedule;
 import com.chitfund.repository.GroupRepository;
@@ -15,30 +17,24 @@ public class GroupService {
 
     private final GroupRepository groupRepo;
     private final PayoutScheduleRepository payoutRepo;
-    private final AuditService auditService;
 
     public GroupService(GroupRepository groupRepo,
-                        PayoutScheduleRepository payoutRepo,
-                        AuditService auditService) {
+                        PayoutScheduleRepository payoutRepo) {
         this.groupRepo = groupRepo;
         this.payoutRepo = payoutRepo;
-        this.auditService = auditService;
     }
 
+    @Auditable(action = AuditAction.CREATE, entityType = "ChittGroup", entityClass = ChittGroup.class)
     public ChittGroup createGroup(ChittGroup group) {
         validateGroup(group);
 
-        // ✅ 1. Save group
         ChittGroup savedGroup = groupRepo.save(group);
-        auditService.record("GROUP_CREATED", "ChittGroup", savedGroup.getId(), "name=" + savedGroup.getName());
 
-        // ✅ 2. Generate months
         List<LocalDate> months = generateMonths(
                 group.getStartMonth(),
                 group.getDuration()
         );
 
-        // ✅ 3. Store in DB
         List<PayoutSchedule> schedules = new ArrayList<>();
 
         for (int i = 0; i < months.size(); i++) {
@@ -69,13 +65,13 @@ public class GroupService {
         return groupRepo.findByIsDeletedFalse();
     }
 
+    @Auditable(action = AuditAction.DELETE, entityType = "ChittGroup", entityClass = ChittGroup.class)
     public void softDelete(Long id) {
         ChittGroup group = groupRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Group not found"));
         group.setIsDeleted(true);
         group.setIsActive(false);
         groupRepo.save(group);
-        auditService.record("GROUP_SOFT_DELETED", "ChittGroup", id, "name=" + group.getName());
     }
 
     private void validateGroup(ChittGroup group) {

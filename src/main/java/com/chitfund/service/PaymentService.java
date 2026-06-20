@@ -1,5 +1,7 @@
 package com.chitfund.service;
 
+import com.chitfund.audit.Auditable;
+import com.chitfund.entity.AuditAction;
 import com.chitfund.entity.Payment;
 import com.chitfund.repository.PaymentRepository;
 import org.springframework.stereotype.Service;
@@ -12,11 +14,9 @@ import java.util.Optional;
 public class PaymentService {
 
     private final PaymentRepository repo;
-    private final AuditService auditService;
 
-    public PaymentService(PaymentRepository repo, AuditService auditService) {
+    public PaymentService(PaymentRepository repo) {
         this.repo = repo;
-        this.auditService = auditService;
     }
 
 
@@ -24,6 +24,7 @@ public class PaymentService {
         return repo.findByGroupIdAndMonth(groupId, month);
     }
 
+    @Auditable(action = AuditAction.CREATE, entityType = "Payment", entityClass = Payment.class)
     public Payment collectPayment(Payment payment) {
         if (payment.getAmount() == null || payment.getAmount() <= 0) {
             throw new IllegalArgumentException("Payment amount must be positive");
@@ -45,13 +46,6 @@ public class PaymentService {
             throw new RuntimeException("Payment already exists. Payment history is immutable; create an adjustment record instead of editing an existing payment.");
         }
 
-        Payment saved = repo.save(payment);
-        auditService.record(
-                "PAYMENT_CREATED",
-                "Payment",
-                saved.getId(),
-                "groupId=" + saved.getGroupId() + ", memberId=" + saved.getMemberId() + ", month=" + saved.getMonth() + ", amount=" + saved.getAmount()
-        );
-        return saved;
+        return repo.save(payment);
     }
 }

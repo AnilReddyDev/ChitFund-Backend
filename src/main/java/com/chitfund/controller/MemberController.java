@@ -22,19 +22,19 @@ public class MemberController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).MANAGE_MEMBERS)")
     public Member add(@Valid @RequestBody Member m) {
         return service.addMember(m);
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).VIEW_MEMBERS)")
     public List<Member> getAll() {
         return service.getAll();
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@permissionService.hasPermission(authentication, T(com.chitfund.security.Permission).MANAGE_MEMBERS)")
     public void delete(@PathVariable @Positive Long id) {
         service.softDelete(id);
     }
