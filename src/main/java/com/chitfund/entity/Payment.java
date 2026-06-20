@@ -1,6 +1,8 @@
 package com.chitfund.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -24,14 +26,21 @@ public class Payment {
 
     // 👉 column names must match DB
     @Column(name = "group_id")
+    @NotNull
+    @Positive
     private Long groupId;
 
     @Column(name = "member_id")
+    @NotNull
+    @Positive
     private Long memberId;
 
     // 🔥 changed to LocalDate
+    @NotNull
     private LocalDate month;
 
+    @NotNull
+    @Positive
     private Double amount;
 
     private Boolean isPaid = true;

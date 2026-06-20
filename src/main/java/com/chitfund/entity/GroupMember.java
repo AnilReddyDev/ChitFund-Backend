@@ -2,6 +2,8 @@
 package com.chitfund.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 import java.time.LocalDate;
 
@@ -18,7 +20,12 @@ public class GroupMember {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
+    @Positive
     private Long groupId;
+
+    @NotNull
+    @Positive
     private Long memberId;
 
     private LocalDate joinDate = LocalDate.now();

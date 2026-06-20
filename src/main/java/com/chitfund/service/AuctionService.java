@@ -12,15 +12,24 @@ public class AuctionService {
     private final AuctionRepository auctionRepo;
     private final PaymentRepository paymentRepo;
     private final GroupRepository groupRepo;
+    private final AuditService auditService;
 
     public AuctionService(AuctionRepository auctionRepo,
                           PaymentRepository paymentRepo,
-                          GroupRepository groupRepo) {
+                          GroupRepository groupRepo,
+                          AuditService auditService) {
         this.auctionRepo = auctionRepo;
         this.paymentRepo = paymentRepo;
         this.groupRepo = groupRepo;
+        this.auditService = auditService;
     }
     public Auction createAuction(Long groupId, Integer month, Long winnerId, Double bidAmount) {
+        if (groupId == null || groupId <= 0 || month == null || month <= 0 || winnerId == null || winnerId <= 0) {
+            throw new IllegalArgumentException("Group, month, and winner are required");
+        }
+        if (bidAmount == null || bidAmount <= 0) {
+            throw new IllegalArgumentException("Bid amount must be positive");
+        }
 
         // ❌ prevent duplicate auction for same month
         if (auctionRepo.findByGroupIdAndMonth(groupId, month).isPresent()) {
@@ -56,7 +65,14 @@ public class AuctionService {
         group.setCurrentMonth((group.getCurrentMonth() == null ? 1 : group.getCurrentMonth()) + 1);
         groupRepo.save(group);
 
-        return auctionRepo.save(auction);
+        Auction saved = auctionRepo.save(auction);
+        auditService.record(
+                "AUCTION_CREATED",
+                "Auction",
+                saved.getId(),
+                "groupId=" + groupId + ", month=" + month + ", winnerId=" + winnerId + ", bidAmount=" + bidAmount
+        );
+        return saved;
     }
     public List<Auction> getHistory(Long groupId) {
         return auctionRepo.findByGroupIdOrderByMonthAsc(groupId);

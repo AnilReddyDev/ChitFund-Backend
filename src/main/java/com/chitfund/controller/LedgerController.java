@@ -4,12 +4,15 @@ import com.chitfund.dto.LedgerFullResponse;
 import com.chitfund.dto.LedgerResponse;
 import com.chitfund.service.LedgerExportService;
 import com.chitfund.service.LedgerService;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 @RestController
 @RequestMapping("/api/ledger")
+@Validated
 public class LedgerController {
 
     private final LedgerService service;
@@ -22,12 +25,14 @@ public class LedgerController {
     }
 
     @GetMapping("/full")
-    public LedgerFullResponse getLedger(@RequestParam Long groupId) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public LedgerFullResponse getLedger(@RequestParam @Positive Long groupId) {
         return service.getFullLedger(groupId);
     }
 
     @GetMapping("/export/csv")
-    public ResponseEntity<String> exportCSV(@RequestParam Long groupId) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> exportCSV(@RequestParam @Positive Long groupId) {
 
         String csv = exportService.exportCSV(groupId);
 
